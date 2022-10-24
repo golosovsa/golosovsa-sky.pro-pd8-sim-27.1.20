@@ -3,33 +3,79 @@ from django.http import JsonResponse
 
 
 def courses(request):
-    courses_list = Course.objects.all()
-    response = []
-    for course in courses_list:
-        response.append(
-            {
-                "id": course.id,
-                "slug": course.slug,
-                "author": course.author,
-                "description": course.description,
-                "start_day": course.start_day,
-                "status": course.status,
-                "created": course.created,
-            }
-        )
-    return JsonResponse(response, safe=False)
+    if request.method == "GET":
+        courses_list = Course.objects.all()
+
+        response = []
+        for course in courses_list:
+            response.append(
+                {
+                    "id": course.id,
+                    "slug": course.slug,
+                    "author": course.author,
+                    "description": course.description,
+                    "start_day": course.start_day,
+                    "status": course.status,
+                    "created": course.created,
+                }
+            )
+        return JsonResponse(response, safe=False)
 
 
 def new_courses(request):
-    # TODO напишите здесь view-функцию (задание new_courses)
-    pass
+    if request.method == "GET":
+        courses_list = Course.objects.filter(status="new")
+
+        response = []
+        for course in courses_list:
+            response.append(
+                {
+                    "id": course.id,
+                    "slug": course.slug,
+                    "author": course.author,
+                    "description": course.description,
+                    "start_day": course.start_day,
+                    "status": course.status,
+                    "created": course.created,
+                }
+            )
+        return JsonResponse(response, safe=False)
 
 
 def get_course(request, slug):
-    # TODO напишите здесь view-функцию (задание find_by_name)
-    pass
+    if request.method == "GET":
+        try:
+            course = Course.objects.get(slug=slug)
+        except Course.DoesNotExist:
+            return JsonResponse({"error": "Does not exist"}, status=404)
+
+        return JsonResponse({
+            "id": course.id,
+            "slug": course.slug,
+            "author": course.author,
+            "description": course.description,
+            "start_day": course.start_day,
+            "status": course.status,
+            "created": course.created,
+        })
 
 
 def search(request):
-    # TODO напишите здесь view-функцию (задание who's author)
-    pass
+    if request.method == "GET":
+        author = request.GET.get("author", None)
+        courses_list = Course.objects.filter(author=author)
+
+        response = []
+        for course in courses_list:
+            response.append(
+                {
+                    "id": course.id,
+                    "slug": course.slug,
+                    "author": course.author,
+                    "description": course.description,
+                    "start_day": course.start_day,
+                    "status": course.status,
+                    "created": course.created,
+                }
+            )
+        return JsonResponse(response, safe=False)
